@@ -1,0 +1,20 @@
+def predict_lgb(input_x,
+                input_id,
+                list_nfold=[0,1,2,3,4],
+               ):
+    pred = np.zeros((len(input_x), len(list_nfold)))
+    for nfold in list_nfold:
+        print("-"*20, nfold, "-"*20)
+        fname_lgb = "model_lgb_fold{}.pickle".format(nfold)
+        with open(fname_lgb, "rb") as f:
+            model = pickle.load(f)
+        pred[:, nfold] = model.predict_proba(input_x)[:,1]
+    
+    pred = pd.concat([
+        input_id,
+        pd.DataFrame({"pred": pred.mean(axis=1)}),
+    ], axis=1)
+    
+    print("Done.")
+    
+    return pred
